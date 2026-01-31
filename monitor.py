@@ -8,6 +8,7 @@ import os
 # --- CONFIGURATION ---
 URL = "https://www.stwdo.de/wohnen/aktuelle-wohnangebote"
 EMAIL_ADDRESS = "rohitstanly123@gmail.com"
+# Correctly reads from GitHub Secrets
 EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD")
 
 def send_notification():
@@ -25,32 +26,25 @@ def send_notification():
     except Exception as e:
         print(f"Error sending email: {e}")
 
-def monitor():
-    print("🚀 Monitoring started. Checking every 10 minutes...")
-    print("Targeting: STWDO Aktuelle Wohnangebote")
-    
-    while True:
-        try:
-            # Using headers to mimic a real browser session
-            headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-            }
-            response = requests.get(URL, headers=headers)
-            soup = BeautifulSoup(response.text, 'html.parser')
-            text = soup.get_text()
+def check_once():
+    print(f"[{time.strftime('%H:%M:%S')}] Checking STWDO Aktuelle Wohnangebote...")
+    try:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        response = requests.get(URL, headers=headers)
+        soup = BeautifulSoup(response.text, 'html.parser')
+        text = soup.get_text()
 
-            # Logic: If the 'No Offers' text is missing, trigger the alert
-            if "leider" not in text:
-                print("✨ CHANGE DETECTED! The 'No Offers' message is gone.")
-                send_notification()
-            else:
-                print(f"[{time.strftime('%H:%M:%S')}] No offers yet. Checking again in 10 minutes...")
+        # Logic: If the 'No Offers' text is missing, trigger the alert
+        if "leider" not in text:
+            print("✨ CHANGE DETECTED! The 'No Offers' message is gone.")
+            send_notification()
+        else:
+            print("🔍 No offers yet.")
             
-        except Exception as e:
-            print(f"Connection Error: {e}")
-        
-        # Sleep for 10 minutes (600 seconds)
-        time.sleep(600)
+    except Exception as e:
+        print(f"Connection Error: {e}")
 
 if __name__ == "__main__":
-    monitor()
+    check_once()
