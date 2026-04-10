@@ -37,7 +37,7 @@ def check_once():
         text = soup.get_text()
 
         # Logic: If the 'No Offers' text is missing, trigger the alert
-        if "rohit" not in text:
+        if "sichtbar" not in text:
             print("✨ CHANGE DETECTED! The 'No Offers' message is gone.")
             send_notification()
         else:
