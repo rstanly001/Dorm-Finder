@@ -1,8 +1,8 @@
 name: STWDO Housing Monitor
 on:
   repository_dispatch:
-    types: [external_trigger] # This is the new trigger
-  workflow_dispatch:          # Keeps your manual button active
+    types: [external_trigger]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -18,5 +18,7 @@ jobs:
         run: pip install -r requirements.txt
       - name: Run script
         env:
-          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          # Add these two lines and remove the old EMAIL_PASSWORD if you aren't using it
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python monitor.py
