@@ -1,45 +1,47 @@
 import requests
 from bs4 import BeautifulSoup
-import smtplib
 import time
-from email.message import EmailMessage
 import os
 
 # --- CONFIGURATION ---
 URL = "https://www.stwdo.de/wohnen/aktuelle-wohnangebote"
-EMAIL_ADDRESS = "rohitstanly123@gmail.com"
-# Correctly reads from GitHub Secrets
-EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD")
+# Retrieve secrets from GitHub environment
+TOKEN = os.environ.get("TELEGRAM_TOKEN")
+CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
 
-def send_notification():
-    msg = EmailMessage()
-    msg.set_content(f"🚨 HOUSING ALERT: An offer has likely appeared! Check immediately: {URL}")
-    msg["Subject"] = "🏠 STWDO Housing Opening Detected!"
-    msg["From"] = EMAIL_ADDRESS
-    msg["To"] = EMAIL_ADDRESS
-
+def send_telegram_msg(text):
+    """Sends a message to your Telegram via the Bot API."""
+    base_url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
+    payload = {
+        "chat_id": CHAT_ID,
+        "text": text,
+        "parse_mode": "HTML"
+    }
     try:
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
-            smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
-            smtp.send_message(msg)
-        print(f"[{time.strftime('%H:%M:%S')}] Email notification sent.")
+        response = requests.post(base_url, data=payload)
+        if response.status_code == 200:
+            print(f"[{time.strftime('%H:%M:%S')}] Telegram alert sent.")
+        else:
+            print(f"Error: {response.text}")
     except Exception as e:
-        print(f"Error sending email: {e}")
+        print(f"Telegram failed: {e}")
 
 def check_once():
-    print(f"[{time.strftime('%H:%M:%S')}] Checking STWDO Aktuelle Wohnangebote...")
+    print(f"[{time.strftime('%H:%M:%S')}] Checking STWDO...")
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+    }
+    
     try:
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        }
         response = requests.get(URL, headers=headers)
         soup = BeautifulSoup(response.text, 'html.parser')
         text = soup.get_text()
 
-        # Logic: If the 'No Offers' text is missing, trigger the alert
-        if "sichtbar" not in text:
-            print("✨ CHANGE DETECTED! The 'No Offers' message is gone.")
-            send_notification()
+        # Your logic for "leider" and "sichtbar"
+        if "leider" not in text and "sichtbar" not in text:
+            print("✨ OFFER DETECTED!")
+            msg = f"🏠 <b>HOUSING ALERT!</b>\n\nAn offer appeared! Check immediately:\n{URL}"
+            send_telegram_msg(msg)
         else:
             print("🔍 No offers yet.")
             
