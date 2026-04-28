@@ -38,13 +38,20 @@ def check_once():
         text = soup.get_text()
 
         # Your logic for "leider" and "sichtbar"
+        # Your original logic check to see if the "No offers" text is gone
         if "leider" not in text and "sichtbar" not in text:
-            print("✨ OFFER DETECTED!")
-            msg = f"🏠 <b>HOUSING ALERT!</b>\n\nAn offer appeared! Check immediately:\n{URL}"
-            send_telegram_msg(msg)
+            
+            # NEW: Case-sensitive check for the uppercase city name in the offer card
+            if "ISERLOHN" in text:
+                print("✨ DORTMUND OFFER DETECTED!")
+                msg = f"🏠 <b>DORTMUND HOUSING ALERT!</b>\n\nAn offer appeared in Dortmund! Check immediately:\n{URL}"
+                send_telegram_msg(msg)
+            else:
+                # It found an offer, but the uppercase DORTMUND wasn't there
+                print("Offer found, but it's not in Dortmund (e.g., Iserlohn). Ignoring.")
+                
         else:
             print("🔍 No offers yet.")
-            
     except Exception as e:
         print(f"Connection Error: {e}")
 
