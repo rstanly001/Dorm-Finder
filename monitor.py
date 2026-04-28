@@ -66,13 +66,13 @@ def check_once():
             # Extract text ONLY from this specific housing card
             card_text = card.get_text().upper() 
             
-            if "ISERLOHN" in card_text:
+            if "DORTMUND" in card_text:
                 dortmund_found = True
                 break # We found at least one Dortmund offer! Stop looking.
 
         # 5. Trigger the alert ONLY if Dortmund was found
         if dortmund_found:
-            print("✨ FOOLPROOF DORTMUND OFFER DETECTED!")
+            print("✨ DORTMUND OFFER DETECTED!")
             msg = f"🏠 <b>DORTMUND HOUSING ALERT!</b>\n\nAn offer actually appeared in Dortmund! Check immediately:\n{URL}"
             send_telegram_msg(msg)
         else:
