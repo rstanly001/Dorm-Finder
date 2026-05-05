@@ -64,7 +64,7 @@ def check_once():
         for card in offer_cards:
             card_text = card.get_text().upper() 
             
-            if "DORTMUND" in card_text:
+            if "ISERLOHN" in card_text:
                 # 1. Extract the Unique Room Fingerprint
                 teaser_div = card.find('div', class_='teaser js-link-area')
                 
