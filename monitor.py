@@ -19,8 +19,25 @@ else:
     print("⚠️ Warning: Upstash Redis credentials not found. Memory disabled.")
 
 def send_telegram_msg(text):
-    # ... (Keep your exact send_telegram_msg function here) ...
-    pass 
+    """Sends a message to your Telegram via the Bot API."""
+    if not TOKEN or not CHAT_ID:
+        print("❌ ERROR: Telegram Token or Chat ID is missing from environment variables!")
+        return
+        
+    base_url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
+    payload = {
+        "chat_id": CHAT_ID,
+        "text": text,
+        "parse_mode": "HTML"
+    }
+    try:
+        response = requests.post(base_url, data=payload)
+        if response.status_code == 200:
+            print(f"[{time.strftime('%H:%M:%S')}] Telegram alert sent successfully.")
+        else:
+            print(f"Telegram API Error: {response.text}")
+    except Exception as e:
+        print(f"Telegram failed: {e}")
 
 def check_once():
     print(f"[{time.strftime('%H:%M:%S')}] Starting STWDO check...")
@@ -47,7 +64,7 @@ def check_once():
         for card in offer_cards:
             card_text = card.get_text().upper() 
             
-            if "ISERLOHN" in card_text:
+            if "DORTMUND" in card_text:
                 # 1. Extract the Unique Room Fingerprint
                 teaser_div = card.find('div', class_='teaser js-link-area')
                 
