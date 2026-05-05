@@ -44,7 +44,10 @@ def check_once():
     headers = {'User-Agent': 'Mozilla/5.0...'}
     
     try:
-        response = requests.get(URL, headers=headers, timeout=10)
+                # Create a unique URL every single run to bypass server caching
+        fresh_url = f"{URL}?nocache={int(time.time())}"
+        response = requests.get(fresh_url, headers=headers, timeout=10)
+        
         if response.status_code != 200:
             return
 
